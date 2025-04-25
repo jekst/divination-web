@@ -1,0 +1,16 @@
+body {
+  min-height: 100vh;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+#app {
+  margin: 0 auto;
+}
+
+
+@media (min-width: 600px) {
+  #app {
+    width: 580px;
+  }
+}
