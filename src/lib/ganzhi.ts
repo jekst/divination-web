@@ -1,7 +1,7 @@
 import { getXunKong } from './xunkong.js';
 import { nayin } from './nayin.js'; // Ensure nayin is a Map or object with a 'get' method
-import { Elements as ganEle } from './tiangan.js';
-import { Elements as zhiEle } from './dizhi.js';
+import { Elements as ganEle,getTianGanByName } from './tiangan.js';
+import { Elements as zhiEle ,getDiZhiByName} from './dizhi.js';
 
 export class GanZhi {
     Gan: ganEle;
@@ -23,6 +23,18 @@ export class GanZhi {
         return getXunKong(this.Gan, this.Zhi);
     }
 }
+export function newGanZhiFromString(ganzhi: string): GanZhi {
+    if (ganzhi.length !== 2) {
+        throw new Error("GanZhi string must be 2 characters long");
+    }
+    const gan = getTianGanByName(ganzhi[0] as ganEle);
+    const zhi = getDiZhiByName(ganzhi[1] as  zhiEle);
+    if (gan === undefined || zhi === undefined) {
+        throw new Error(`Invalid GanZhi string: ${ganzhi}`);
+    }
+    return new GanZhi(gan.Name, zhi.Name);
+}
+
 export class Time {
     Year: GanZhi;
     Month: GanZhi;

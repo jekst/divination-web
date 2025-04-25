@@ -8,6 +8,7 @@ import { LiuQin, getLiuqin } from './liuqin';
 import { getNaJia } from "./najia";
 import { NewLineKind } from "typescript";
 import { getShensha } from "./shensha";
+import {SolarTime } from "tyme4ts";
 export const enum GuaType {
     Undefined = "",
     LiuheGua = "六合",
@@ -195,22 +196,21 @@ export function Paipan(date: Date, question: string, mode: string, yaoList: numb
     if (yaoList.length != 6) {
         return undefined
     }
-    console.log(date)
     if (date instanceof Date === false) {
         date = new Date(date)
     }
-    console.log(date)
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDate();
     const hour = date.getHours();
     const minute = date.getMinutes();
-    //TODO: 根据时间计算干支
+    const solar=SolarTime.fromYmdHms(year, month, day, hour, minute, 0)
+    const sixtyCycle=solar.getSixtyCycleHour()
     const gzTime = new ganzhi.Time(
-        new ganzhi.GanZhi(ganEle.Jia, zhiEle.Zi),
-        new ganzhi.GanZhi(ganEle.Jia, zhiEle.Yin),
-        new ganzhi.GanZhi(ganEle.Bing, zhiEle.Xu),
-        new ganzhi.GanZhi(ganEle.Ding, zhiEle.Si),
+         ganzhi.newGanZhiFromString(sixtyCycle.getYear().getName()),
+         ganzhi.newGanZhiFromString(sixtyCycle.getMonth().getName()),
+         ganzhi.newGanZhiFromString(sixtyCycle.getDay().getName()),
+         ganzhi.newGanZhiFromString(sixtyCycle.getSixtyCycle().getName()),
     )
 
     const [ben, bian]: [Gua, Gua] = YaoToGua(gzTime, yaoList)
