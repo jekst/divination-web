@@ -22,7 +22,7 @@ onUnmounted(function(){
 </script>
 
 <template>
-  <div class="content">
+  <div>
     <div>
       <div>
           <span>时间：{{ data?.Datetime }}</span>
@@ -105,19 +105,10 @@ onUnmounted(function(){
 </template>
 
 <style>
-.page {
-    width: 100%;
-    margin: 0 auto;
-    max-width: 580px;
-}
 
 .timeHighlight {
     color: brown;
     font-weight: bold;
-}
-
-.content {
-    padding: 20px 0;
 }
 
 .gua {

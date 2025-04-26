@@ -1,16 +1,22 @@
+:root{
+  color-scheme: light dark
+}
 body {
-  min-height: 100vh;
   line-height: 1.6;
   font-size: 15px;
+  margin: 0;
+  padding: 10px;
+  color:rgb(96, 98, 102)
 }
 
 #app {
   margin: 0 auto;
+  padding-top: 20px;
 }
 
 
 @media (min-width: 600px) {
   #app {
-    width: 580px;
+    width: 460px;
   }
 }
