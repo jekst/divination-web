@@ -14,9 +14,6 @@ const formData=ref({
   benGuaName: "",
   bianGuaName: "",
 })
-watch(formData, (newVal) => {
-  console.log('formData changed:', newVal);
-}, { deep: true })
 
 const selectedTab = ref('online');
 function clickTab(tab: string) {
