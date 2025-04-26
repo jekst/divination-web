@@ -63,9 +63,9 @@ function generateBaGuaNaJia(): Map<string, Array<GanZhi>> {
 export const baguaNaJia = generateBaGuaNaJia()
 
 export function getNaJia(guaID: number): Array<GanZhi> {
-    let innerID = guaID & 0b111
-    let innerGua = bagua.getGuaByID(innerID)
-    let nj = baguaNaJia.get(innerGua.Name)
+    const innerID = guaID & 0b111
+    const innerGua = bagua.getGuaByID(innerID)
+    const nj = baguaNaJia.get(innerGua.Name)
     if (!nj) {
         throw new Error(`NaJia not found for ${innerGua.Name}`);
     }
@@ -73,14 +73,14 @@ export function getNaJia(guaID: number): Array<GanZhi> {
     for (let i = 0; i < 3; i++) {
         ret[i] = nj[i];
     }
-    let outerID = guaID >> 3
-    let outerGua = bagua.getGuaByID(outerID)
-    nj = baguaNaJia.get(outerGua.Name)
-    if (!nj) {
+    const outerID = guaID >> 3
+    const outerGua = bagua.getGuaByID(outerID)
+    const bnj = baguaNaJia.get(outerGua.Name)
+    if (!bnj) {
         throw new Error(`NaJia not found for ${outerGua.Name}`);
     }
     for (let i = 3; i < 6; i++) {
-        ret[i] = nj[i]
+        ret[i] = bnj[i]
     }
     return ret
 }

@@ -9,13 +9,13 @@ const useStore=liuyaoStore()
 const formData=ref({
   time: new Date(),
   question: "",
-  mode: "online",
+  mode: "manual",
   yaos: new Array<number>(),
   benGuaName: "",
   bianGuaName: "",
 })
 
-const selectedTab = ref('online');
+const selectedTab = ref('manual');
 function clickTab(tab: string) {
   selectedTab.value = tab;
 }
@@ -144,12 +144,12 @@ function check() {
             </div>
             <div class="flex">
                 <label for="fangshi">方式：</label>
-                <input v-model="formData.mode" @click="clickTab('online')"  :class="{active:selectedTab=='online'}" value="online" id="online" type="radio" />
-                <label for="online">在线</label>
                 <input v-model="formData.mode" @click="clickTab('manual')" :class="{active:selectedTab=='manual'}"  value="manual" id="manual" type="radio" />
                 <label for="manual">手动</label>
                 <input v-model="formData.mode" @click="clickTab('name')" :class="{active:selectedTab=='name'}" value="name" id="name" type="radio" />
                 <label for="name">卦名</label>  
+                <input v-model="formData.mode" @click="clickTab('online')"  :class="{active:selectedTab=='online'}" value="online" id="online" type="radio" />
+                <label for="online">在线</label>
             </div>
             <div id="online" v-if="selectedTab=='online'" class="tabcontent">
                 <div class="flex" style="justify-content: center;" @click="yaoGua()">

@@ -39,7 +39,7 @@ onUnmounted(function(){
         <span class="shensha" v-for="[key,value] in data?.Shensha">{{ key }}:{{ value }}</span>
     </div>
     <hr />
-    <div style="display:flex; justify-content: center;margin:10px;">
+    <div style="text-align: center;margin: 8px 0;font-size: 16px;">
         <span class="timeHighlight"> {{ data?.GanZhiTime?.Month.toString() }}</span>月
         <span class="timeHighlight"> {{ data?.GanZhiTime?.Day.toString() }}</span>日
         <span>（旬空：<span class="timeHighlight">{{ data?.GanZhiTime?.Day.xunkong() }}</span>）</span>
@@ -112,7 +112,7 @@ onUnmounted(function(){
 }
 
 .timeHighlight {
-    color: red;
+    color: brown;
     font-weight: bold;
 }
 
