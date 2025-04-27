@@ -1,5 +1,4 @@
-import type { Case } from '../lib/liuyao/paipan.ts';
-import { newCase } from '../lib/liuyao/paipan.ts';
+import type { Case } from '../lib/liuyao.ts';
 import { defineStore } from 'pinia'
 
 export const liuyaoStore = defineStore('liuyao', {

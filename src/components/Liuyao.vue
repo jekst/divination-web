@@ -61,14 +61,20 @@ const guaNames =gua64List.map((item) => {
     return { value: item.Name, label: item.Name }
 })     
 
-const randomElement = (array: number[]): number => array[Math.floor(Math.random() * array.length)];
-const milisecond = [90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110];
+function random(min:number, max:number): number  {
+  const floatRandom = Math.random()
+  const difference = max - min
+  // 介于 0 和差值之间的随机数
+  const random = Math.round(difference * floatRandom)
+  const randomWithinRange = random + min
+  return randomWithinRange
+}
  // 摇卦
- let interval=Array<ReturnType<typeof setInterval>>();
- function yaoGua() {
+let interval=Array<ReturnType<typeof setInterval>>();
+function yaoGua() {
     let objYaoResult: HTMLElement | null = document.getElementById("yaoResult");
     if (formData.value.yaos.length >= 6) {
-        check()
+        submit()
         return
     }
     let coins = document.getElementsByClassName("tongqianZi");
@@ -82,7 +88,7 @@ const milisecond = [90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 
         for (let i = 0; i < coins.length; i++) {
             const cur = coins[i]
             changeCoinSide(cur as HTMLElement)
-            const t = randomElement(milisecond)
+            const t = random(90, 110)
             let it = setInterval(function (obj:HTMLElement) {
                 changeCoinSide(obj)
             }, t, cur);
@@ -122,7 +128,7 @@ const milisecond = [90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 
     }
 }       
 //检查是否填写完整
-function check() {
+function submit() {
   if (formData.value.mode == "online") {
       if (formData.value.yaos.length < 6) {
           return
@@ -135,11 +141,11 @@ function check() {
   else if (formData.value.mode == "manual") {
       let tmpYaos :number[] = []
       for (let i = 1; i <= 6; i++) {
-            const yaoValue = formData.value[`yao${i}`]; 
-            if (yaoValue === undefined||yaoValue === 0) {
+            const yaoValue = Number(formData.value[`yao${i}`])
+            if (yaoValue === 0) {
                 return
             }
-            tmpYaos.push(Number(yaoValue))
+            tmpYaos.push(yaoValue)
       }
       formData.value.yaos =tmpYaos
   }
@@ -151,15 +157,13 @@ function check() {
   useStore.data = { ...formData.value }
   router.push({ name: 'pan'})
 }
-
-
 </script>
 
 <template>
-  <div>
+  <div style="padding:10px 15px;">
     <el-form :model="formData" label-width="auto">
         <el-form-item label="时间">
-            <el-date-picker style="width: 100%;" v-model="formData.time" type="datetime" placeholder="请选择日期时间" />
+            <el-date-picker style="width: 100%;" v-model="formData.time" :editable=false type="datetime" placeholder="请选择日期时间" />
         </el-form-item>
         <el-form-item label="占问">
             <el-input v-model="formData.question"/>
@@ -187,7 +191,7 @@ function check() {
         <div v-if="selectedTab=='manual'">
             <el-col :span="14" :offset="5"  >
                 <el-form-item :label="val" v-for="([key,val]) in timesToName">
-                    <el-select v-model="formData[`yao${key}`]" filterable >
+                    <el-select v-model="formData[`yao${key}`]" >
                         <el-option
                         v-for="item in yaoOptions"
                         :key="item.value"
@@ -224,7 +228,7 @@ function check() {
             </el-col>
         </div>
         <el-form-item>
-            <el-button round type="primary" size="large" style="width: 90%;margin:30px auto;" @click="check()">排盘</el-button>
+            <el-button round type="primary" color="#626aef" size="large" style="width: 100%;margin:30px auto;" @click="submit()">排 盘</el-button>
         </el-form-item>
     </el-form>
   </div>

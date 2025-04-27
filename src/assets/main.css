@@ -6,12 +6,11 @@ body {
   font-size: 15px;
   margin: 0;
   padding: 10px;
-  color:rgb(96, 98, 102)
+  color:#333;
 }
 
 #app {
   margin: 0 auto;
-  padding-top: 20px;
 }
 
 

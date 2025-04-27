@@ -1,5 +1,5 @@
-import * as bagua from "./gua.js";
-import { Elements as wuxing } from "./wuxing.js";
+import * as bagua from "./gua";
+import { Wuxing as wuxing } from "./base";
 export enum Palace {
     Undefined = "",
     Qian = "乾",
@@ -20,9 +20,9 @@ export class Gua64 {
     Symbol: string;
     Palace: Palace;
     PalacePosition: number;
-    Wuxing: wuxing;
+    Wuxing: string;
 
-    constructor(id: number, palaceID: number, rank: number, name: string, shortName: string, symbol: string, palace: Palace, palacePosition: number, wuxing: wuxing) {
+    constructor(id: number, palaceID: number, rank: number, name: string, shortName: string, symbol: string, palace: Palace, palacePosition: number, wuxing: string) {
         this.ID = id;
         this.PalaceID = palaceID;
         this.Rank = rank;

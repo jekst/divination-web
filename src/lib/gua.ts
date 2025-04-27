@@ -1,4 +1,4 @@
-import { Elements as wuxing } from "./wuxing.js";
+import { Wuxing as wuxing } from "./base";
 export enum Gua {
     Qian = "乾",
     Dui = "兑",
