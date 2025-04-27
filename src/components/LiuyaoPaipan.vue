@@ -88,12 +88,12 @@ onUnmounted(function(){
             <tr>
                 <td></td>
                 <td></td>
-                <td colspan="2">
+                <td colspan="2" style="text-align: center;">
                     <span class="shen">身:{{ data?.BenGua.Shen}}</span>
                     <span class="hechong" v-if="data?.BenGua.HeChong">{{data?.BenGua.HeChong}}</span>
                     <span class="yougui" v-if="data?.BenGua.YouGui">{{data?.BenGua.YouGui}}</span>
                 </td>
-                <td>
+                <td style="text-align:center">
                     <span class="shen">身:{{ data?.BianGua.Shen}}</span>
                     <span class="hechong" v-if="data?.BianGua.HeChong">{{data?.BianGua.HeChong}}</span>
                     <span class="yougui" v-if="data?.BianGua.YouGui">{{data?.BianGua.YouGui}}</span>
@@ -121,6 +121,9 @@ onUnmounted(function(){
 .gua tr,
 .gua td {
     border: 0 none;
+}
+.gua th{
+    padding-bottom: 10px;
 }
 
 .gua td {
@@ -154,6 +157,7 @@ onUnmounted(function(){
 .hechong {
     color: blue;
     font-size: 14px;
+    margin:0 6px;
 }
 
 .yougui {

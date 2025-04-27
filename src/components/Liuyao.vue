@@ -17,7 +17,7 @@ const formData=ref<{
 }>({
     time: new Date(),
     question: "",
-    mode: "manual",
+    mode: "name",
     yaos: new Array<number>(),
     benGuaName: "",
     bianGuaName: "",
@@ -29,11 +29,16 @@ const formData=ref<{
     yao6: "",
 })
 
-const selectedTab = ref('manual');
+const selectedTab = ref('name');
 function clickTab(tab: string) {
   selectedTab.value = tab;
 }
-
+watch(selectedTab, (newVal) => {
+    formData.value.yaos = [];
+});
+const initCoins=[1,2,3].map((item) => {
+    return random(1,10)%2==0?"block":"none"
+})
 //翻转铜钱
 function changeCoinSide(obj : HTMLElement) {
   if (obj.style.display === "none") {
@@ -77,7 +82,7 @@ function yaoGua() {
         submit()
         return
     }
-    let coins = document.getElementsByClassName("tongqianZi");
+    let coins = document.getElementsByClassName("coin_char");
     // 停止摇卦
     if (interval.length > 0) {
         for (let i = 0; i < interval.length; i++) {
@@ -104,23 +109,28 @@ function yaoGua() {
             num += 3
         }
     }
-    const name = timesToName.get(formData.value.yaos.length+1)
-    let newEle;
+    let name = timesToName.get(formData.value.yaos.length+1)
+    let yinyang;
     switch (num) {
         case 6:
-            newEle = "<div class=\"flex\"><span>" + name + " 老阴</span><span>▅　▅</span><span>×</span></div>";
+            name+= " 老阴"
+            yinyang = "▅　▅"
             break;
         case 7:
-            newEle = "<div class=\"flex\"><span>" + name + " 少阳</span><span>▅▅▅</span></div>";
+            name+= " 少阳"
+            yinyang = "▅▅▅"
             break;
         case 8:
-            newEle = "<div class=\"flex\"><span>" + name + " 少阴</span><span>▅　▅</span></div>";
+            name+= " 少阴"
+            yinyang = "▅　▅"
             break;
         case 9:
-            newEle = "<div class=\"flex\"><span>" + name + " 老阳</span><span>▅▅▅</span><span>○<span></div>";
+            name+= " 老阳"
+            yinyang = "▅▅▅ ○"
             break;
     }
     if (objYaoResult) {
+        const newEle=`<div class="flex" style="margin:5px 4px;"><span>${name}</span><span style="margin:0 6px; vertical-align: top;">${yinyang}</span></div>`
         objYaoResult.innerHTML = newEle + objYaoResult.innerHTML;
     }
     if (formData.value.yaos.length < 6) {
@@ -150,8 +160,11 @@ function submit() {
       formData.value.yaos =tmpYaos
   }
   else if (formData.value.mode == "name") {
-      if (formData.value.benGuaName == "" || formData.value.benGuaName == "") {
+      if (formData.value.benGuaName == "") {
           return
+      }
+      if (formData.value.bianGuaName==""){
+        formData.value.bianGuaName=formData.value.benGuaName
       }
   }
   useStore.data = { ...formData.value }
@@ -170,16 +183,16 @@ function submit() {
         </el-form-item> 
         <el-form-item label="方式">
             <el-radio-group v-model="formData.mode">
-                <el-radio @click="clickTab('manual')"  value="manual">手动</el-radio>
                 <el-radio @click="clickTab('name')" value="name">卦名</el-radio>
+                <el-radio @click="clickTab('manual')"  value="manual">手动</el-radio>
                 <el-radio @click="clickTab('online')" value="online">在线</el-radio>
             </el-radio-group>
         </el-form-item>
         <div v-if="selectedTab=='online'">
             <div @click="yaoGua()" style="height: 100px;margin-bottom: 20px;display:flex;flex-direction:row;justify-content: center;">
-                <div  v-for="n in 3" style="position: relative;width: 100px;height: 100%;">
-                    <img class="tongqian" src="@/assets/0.png">
-                    <img class="tongqian tongqianZi" src="@/assets/1.png">
+                <div  v-for="val in initCoins" style="position: relative;width: 100px;height: 100%;">
+                    <img class="coin" src="@/assets/coin0.png">
+                    <img class="coin coin_char" :style="{display:val}" src="@/assets/coin1.png">
                 </div>
             </div>
             <div id="yaoResult"> </div>
@@ -233,16 +246,21 @@ function submit() {
     </el-form>
   </div>
 </template>
-
 <style scoped>
-   .tongqian {
+    .coin_char {
+        position: absolute;
+        left: 5px;
+        width: 90px;
+        height: 90px;
+    }
+   .coin {
         position: absolute;
         left: 5px;
         width: 90px;
         height: 90px;
     }
 
-    .tongqianZi {
+    .coin_char {
         display: block;
     }
 
@@ -250,7 +268,4 @@ function submit() {
         justify-self: center;
     }
 
-    #yaoResult span {
-        padding: 0 4px;
-    }
 </style>
