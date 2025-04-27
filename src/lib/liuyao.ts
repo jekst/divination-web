@@ -623,6 +623,7 @@ export class LiuYao {
         if (guaShenList) {
             benGua.Shen = guaShenList[pro.Shi];
         }
+        benGua.HeChong = LiuYao.guaCategory[bengua.Name] ?? GuaType.Undefined
         benGua.YouGui = pro.YouGui
         benGua.Yaos = benguaYao
         if (hasBian) {
@@ -639,6 +640,7 @@ export class LiuYao {
             bianguaYao[pro.Ying].ShiYing = "应"
             bianGua.Name = cg.Name
             bianGua.Palace = cg.Palace
+            bianGua.HeChong = LiuYao.guaCategory[bianGua.Name] ?? GuaType.Undefined
             const guaShenList = LiuYao.guaShen[bianguaYao[pro.Shi].YinYang];
             if (guaShenList) {
                 bianGua.Shen = guaShenList[pro.Shi];
