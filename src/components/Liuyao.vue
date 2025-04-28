@@ -14,7 +14,7 @@ const formData = ref<{
 	yaos: number[]
 	benGuaName: string
 	bianGuaName: string
-	isHistory: bool
+	isHistory: boolean
 	[key: `yao${number}`]: number | string
 }>({
 	time: new Date(),
