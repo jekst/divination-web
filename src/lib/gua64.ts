@@ -1,5 +1,6 @@
 import * as bagua from "./gua";
 import { Wuxing as wuxing } from "./base";
+import { YinYang } from "tyme4ts";
 export enum Palace {
     Undefined = "",
     Qian = "乾",
@@ -127,7 +128,14 @@ export function getGuaByID(id: number): Gua64 {
     }
     return gua64List[id];
 }
-
+export function getYaoYinYang(id: number): YinYang[] {
+    let list = Array<YinYang>(6)
+    for (let i = 0; i < 6; i++) {
+        list[i] = (id & 1) == 1 ? YinYang.YANG : YinYang.YIN
+        id >>= 1
+    }
+    return list
+}
 // GenerateByName 通过八卦名生成64卦
 export function generateByName(outer: bagua.Gua, inner: bagua.Gua): Gua64 | undefined {
     let outerGua = bagua.getGuaByName(outer)

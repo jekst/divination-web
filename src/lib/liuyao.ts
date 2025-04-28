@@ -1,6 +1,7 @@
 import { WuxingRelation, TianGan, DiZhi, GanZhi, Wuxing, GanZhiTime, YinYang } from "./base"
 import * as bagua from "./gua"
 import * as gua64 from "./gua64";
+import { format } from "./date";
 class LiuQin {
     static readonly FuMu = "父母"
     static readonly XiongDi = "兄弟"
@@ -382,18 +383,31 @@ export const enum YaoType {
     ShaoYin = 8,
     LaoYang = 9,
 }
-export const Mode: Record<string, string> = {
-    "online": "在线起卦",
-    "manual": "手动指定",
-    "name": "卦名起卦",
-}
 export const enum YaoSymbol {
-    Undefined = "",
-    SymbolDan = "′",// 少阳
-    SymbolChai = "″", // 少阴
-    SymbolZhong = "○", // 老阳
-    SymbolJiao = "×", // 老阴
+    Dan = "′",// 少阳
+    Chai = "″", // 少阴
+    Zhong = "○", // 老阳
+    Jiao = "×", // 老阴
 }
+
+export const YaoTypeToFullSymbol: Record<number, string> = {
+    [YaoType.LaoYin]: "老阴 ▅　▅ ×",
+    [YaoType.ShaoYang]: "少阳 ▅▅▅",
+    [YaoType.ShaoYin]: "少阴 ▅　▅",
+    [YaoType.LaoYang]: "老阳 ▅▅▅ ○",
+}
+export const enum Mode {
+    GuaName = "guaname",
+    YaoName = "yaoname",
+    Online = "online",
+}
+
+export const ModeList: Record<Mode, string> = {
+    [Mode.GuaName]: "卦名起卦",
+    [Mode.YaoName]: "手动指定",
+    [Mode.Online]: "在线起卦",
+}
+
 export type Yao = {
     YinYang: YinYang // 阴阳
     Symbol: YaoSymbol     // 符号
@@ -409,13 +423,37 @@ export type Yao = {
     WangXiang: string// 旺相休囚
     ZhangSheng: string// 十二长生
 }
+
 export type Gua = {
     Name: string
     Palace: gua64.Palace
-    Shen: string
+    ShiShen: string
     HeChong: GuaType
     YouGui: GuaType
-    Yaos: Yao[]
+    YaoList: Yao[]
+}
+
+type GuaProperty = {
+    Shi: number
+    Ying: number
+    YouGui: GuaType
+}
+
+// 安世身诀：
+// 子午持世身居初，丑未持世身居二，
+// 寅申持世身居三，卯酉持世身居四，
+// 辰戌持世身居五，巳亥持世身居六。
+class ShiShen {
+    static get(yinyang: YinYang, shiPosition: number): string {
+        if (shiPosition < 0 || shiPosition > 5) {
+            return ""
+        }
+        let dzIndex = shiPosition + 1
+        if (yinyang == YinYang.Yin) {
+            dzIndex += 6
+        }
+        return DiZhi.getName(dzIndex)
+    }
 }
 export type Case = {
     Question: string             // 问念
@@ -427,15 +465,8 @@ export type Case = {
     BianGua: Gua                // 变卦
     Shensha: Map<string, string>  //神煞
 }
-type GuaProperty = {
-    Shi: number
-    Ying: number
-    YouGui: GuaType
-}
+
 export class LiuYao {
-    yaos: Yao[] = new Array<Yao>(6)
-    constructor() {
-    }
     static readonly guaCategory: Record<string, GuaType> = {
         "地天泰": GuaType.LiuheGua,
         "天地否": GuaType.LiuheGua,
@@ -459,12 +490,6 @@ export class LiuYao {
         "天雷无妄": GuaType.LiuchongGua,
         "雷天大壮": GuaType.LiuchongGua,
     }
-    // 卦身
-    static readonly guaShen: Record<YinYang, string[]> = {
-        [YinYang.Yang]: [DiZhi.Zi, DiZhi.Chou, DiZhi.Yin, DiZhi.Mao, DiZhi.Chen, DiZhi.Si],
-        [YinYang.Yin]: [DiZhi.Wu, DiZhi.Wei, DiZhi.Shen, DiZhi.You, DiZhi.Xu, DiZhi.Hai],
-        [YinYang.Undefined]: [],
-    }
     //return 世爻位置，应爻位置，游魂或归魂卦
     static getGuaProperty(position: number): GuaProperty {
         switch (position) {
@@ -487,51 +512,25 @@ export class LiuYao {
         }
         return { Shi: 0, Ying: 0, YouGui: GuaType.Undefined }
     }
-    static Paipan(date: Date, question: string, mode: string, yaoList: number[], benguaName: string = "", bianguaName: string = ""): Case | undefined {
-        if (mode === "name") {
-            const bengua = gua64.getGuaByName(benguaName)
-            const biangua = gua64.getGuaByName(bianguaName)
-            let benID = bengua.ID
-            let bianID = biangua.ID
-            const yao = new Array<number>(6)
-            for (let i = 0; i < 6; i++) {
-                let a = benID & 1
-                let b = bianID & 1
-                let y = YaoType.Undefined
-                if (a == 0 && b == 0) {
-                    y = YaoType.ShaoYin
-                } else if (a == 1 && b == 1) {
-                    y = YaoType.ShaoYang
-                } else if (a == 0 && b == 1) {
-                    y = YaoType.LaoYin
-                } else if (a == 1 && b == 0) {
-                    y = YaoType.LaoYang
-                }
-                benID = benID >> 1
-                bianID = bianID >> 1
-                yao[i] = y
-            }
-            yaoList = yao
+
+    static paipan(date: Date, question: string, mode: string, yaoList: number[], benguaName: string = "", bianguaName: string = ""): Case | undefined {
+        if (yaoList.length == 0) {
+            yaoList = LiuYao.getYaoList(benguaName, bianguaName) ?? []
         }
         if (yaoList.length != 6) {
-            return undefined
+            return
         }
         if (date instanceof Date === false) {
             date = new Date(date)
         }
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1;
-        const day = date.getDate();
-        const hour = date.getHours();
-        const minute = date.getMinutes();
         const gzTime = GanZhiTime.fromDate(date)
 
-        const [ben, bian]: [Gua, Gua] = LiuYao.YaoToGua(gzTime, yaoList)
+        const [ben, bian]: [Gua, Gua] = LiuYao.getGua(gzTime, yaoList)
         return {
             Question: question,
             Category: "",
-            Mode: Mode[mode] ?? "",
-            Datetime: year + "-" + month + "-" + day + " " + hour + ":" + minute,
+            Mode: ModeList[mode as Mode] ?? "",
+            Datetime: format(date),
             GanZhiTime: gzTime,
             BenGua: ben,
             BianGua: bian,
@@ -539,7 +538,7 @@ export class LiuYao {
         }
     }
 
-    static YaoToGua(time: GanZhiTime, yao: number[]): [Gua, Gua] {
+    static getGua(time: GanZhiTime, yao: number[]): [Gua, Gua] {
         let benguaID = 0
         let bianguaID = 0
         let hasBian = false
@@ -560,24 +559,24 @@ export class LiuYao {
                     hasBian = true
                     t.YinYang = YinYang.Yin
                     t2.YinYang = YinYang.Yang
-                    t.Symbol = YaoSymbol.SymbolJiao
+                    t.Symbol = YaoSymbol.Jiao
                     break
                 case YaoType.ShaoYang:
                     benguaID += 1 << i
                     bianguaID += 1 << i
-                    t.Symbol = YaoSymbol.SymbolDan
+                    t.Symbol = YaoSymbol.Dan
                     t.YinYang = YinYang.Yang
                     t2.YinYang = YinYang.Yang
                     break
                 case YaoType.ShaoYin:
-                    t.Symbol = YaoSymbol.SymbolChai
+                    t.Symbol = YaoSymbol.Chai
                     t.YinYang = YinYang.Yin
                     t2.YinYang = YinYang.Yin
                     break
                 case YaoType.LaoYang:
                     benguaID += 1 << i
                     hasBian = true
-                    t.Symbol = YaoSymbol.SymbolZhong
+                    t.Symbol = YaoSymbol.Zhong
                     t.YinYang = YinYang.Yang
                     t2.YinYang = YinYang.Yin
                     break
@@ -619,13 +618,10 @@ export class LiuYao {
         let bianGua: Gua = {} as Gua
         benGua.Name = bengua.Name
         benGua.Palace = bengua.Palace
-        const guaShenList = LiuYao.guaShen[benguaYao[pro.Shi].YinYang];
-        if (guaShenList) {
-            benGua.Shen = guaShenList[pro.Shi];
-        }
+        benGua.ShiShen = ShiShen.get(benguaYao[pro.Shi].YinYang, pro.Shi);
         benGua.HeChong = LiuYao.guaCategory[bengua.Name] ?? GuaType.Undefined
         benGua.YouGui = pro.YouGui
-        benGua.Yaos = benguaYao
+        benGua.YaoList = benguaYao
         if (hasBian) {
             let cg = gua64.getGuaByID(bianguaID)
             let bianguaNajia = NaJia.get(cg.ID)
@@ -641,15 +637,44 @@ export class LiuYao {
             bianGua.Name = cg.Name
             bianGua.Palace = cg.Palace
             bianGua.HeChong = LiuYao.guaCategory[bianGua.Name] ?? GuaType.Undefined
-            const guaShenList = LiuYao.guaShen[bianguaYao[pro.Shi].YinYang];
-            if (guaShenList) {
-                bianGua.Shen = guaShenList[pro.Shi];
-            }
+            bianGua.ShiShen = ShiShen.get(bianguaYao[pro.Shi].YinYang, pro.Shi);
             bianGua.YouGui = pro.YouGui
-            bianGua.Yaos = bianguaYao
+            bianGua.YaoList = bianguaYao
         } else {
             bianGua = benGua
         }
         return [benGua, bianGua]
+    }
+
+    static getYaoList(benguaName: string, bianguaName: string): Array<number> | undefined {
+        if (benguaName == "") {
+            return
+        }
+        if (bianguaName == "") {
+            bianguaName = benguaName
+        }
+        const bengua = gua64.getGuaByName(benguaName)
+        const biangua = gua64.getGuaByName(bianguaName)
+        let benID = bengua.ID
+        let bianID = biangua.ID
+        const yao = new Array<number>(6)
+        for (let i = 0; i < 6; i++) {
+            let a = benID & 1
+            let b = bianID & 1
+            let y: YaoType = YaoType.Undefined
+            if (a == 0 && b == 0) {
+                y = YaoType.ShaoYin
+            } else if (a == 1 && b == 1) {
+                y = YaoType.ShaoYang
+            } else if (a == 0 && b == 1) {
+                y = YaoType.LaoYin
+            } else if (a == 1 && b == 0) {
+                y = YaoType.LaoYang
+            }
+            benID = benID >> 1
+            bianID = bianID >> 1
+            yao[i] = y
+        }
+        return yao
     }
 }

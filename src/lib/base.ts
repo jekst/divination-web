@@ -247,8 +247,8 @@ export class GanZhi {
         if (tianGanIndex < 1 || tianGanIndex > 10 || diZhiIndex < 1 || diZhiIndex > 12) {
             return new GanZhi("", "");
         }
-        const tianGan = TianGan.getName(tianGanIndex);  
-        const diZhi = DiZhi.getName(diZhiIndex);    
+        const tianGan = TianGan.getName(tianGanIndex);
+        const diZhi = DiZhi.getName(diZhiIndex);
         return new GanZhi(tianGan, diZhi);
     }
     getTianGanIndex(): number {

@@ -5,7 +5,8 @@ const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', name: 'home', component: HomeView, },
-    { path: '/pan', name: 'pan', component: () => import('../components/LiuyaoPaipan.vue'), },
+    { path: '/liuyao/pan', name: 'liuyaopan', component: () => import('../components/LiuyaoPaipan.vue'), },
+    { path: '/liuyao/history', name: 'liuyaohistory', component: () => import('../components/LiuyaoHistory.vue'), },
     // {
     //   path: '/about',
     //   name: 'about',
