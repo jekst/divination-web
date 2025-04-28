@@ -1,8 +1,20 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import { ref } from 'vue'
-
+import { isDate } from 'element-plus/es/utils/types.mjs'
 const activeIndex = ref('1')
+const media = window.matchMedia('(prefers-color-scheme: dark)')
+function changeColorMode(isDark: boolean) {
+	const dark = isDark ? 'dark' : ''
+	const html = document.getElementsByTagName('html')
+	html[0].setAttribute('class', dark)
+}
+if (media) {
+	changeColorMode(media.matches)
+	media.addEventListener('change', (event) => {
+		changeColorMode(event.matches)
+	})
+}
 </script>
 
 <template>
